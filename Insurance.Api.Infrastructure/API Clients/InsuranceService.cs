@@ -3,7 +3,7 @@ using Insurance.Api.Application.DTO;
 using Insurance.Api.Application.Interfaces;
 using Newtonsoft.Json;
 
-namespace Insurance.Api.Infrastructure
+namespace Insurance.Infrastructure.API_Clients
 {
     public class InsuranceService(ICalculateInsuranceCommand commandToCalculateInsurance) : IInsuranceService
     {
@@ -20,12 +20,10 @@ namespace Insurance.Api.Infrastructure
         {
             var productJson = GetProductById(productId);
             var product = JsonConvert.DeserializeObject<dynamic>(productJson);
-            if (product == null)
-                return null;
+            if (product == null) return null;
 
             var jsonProductTypes = GetProductTypes();
             var productTypes = JsonConvert.DeserializeObject<dynamic>(jsonProductTypes);
-
             var productToInsureDto = new ProductInsuranceCreateDto();
             var productToInsureFound = false;
 
@@ -38,17 +36,23 @@ namespace Insurance.Api.Infrastructure
                 productToInsureFound = true;
             }
 
-            if (!productToInsureFound)
-                return null;
+            if (!productToInsureFound) return null;
             productToInsureDto.SalesPrice = product.salesPrice;
             return productToInsureDto;
         }
 
         private string GetProductById(int productId)
         {
-            var productJson = client.GetAsync(string.Format("/products/{0:G}", productId)).Result.Content
-                .ReadAsStringAsync().Result;
-            return productJson;
+            try
+            {
+                var productJson = client.GetAsync(string.Format("/products/{0:G}", productId)).Result.Content
+                    .ReadAsStringAsync().Result;
+                return productJson;
+            }
+            catch (HttpRequestException httpException)
+            {
+                throw new Exception($"Could not get product by ID, due to exception : {httpException.Message}",httpException);
+            }
         }
 
         private string GetProductTypes()

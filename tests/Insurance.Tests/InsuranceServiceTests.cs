@@ -1,6 +1,5 @@
 using System;
 using Insurance.Api.Application.DTO;
-using Insurance.Api.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -10,6 +9,7 @@ using Newtonsoft.Json;
 using Xunit;
 using System.Collections.Generic;
 using Insurance.Api.Application.Commands;
+using Insurance.Infrastructure.API_Clients;
 
 namespace Insurance.Tests
 {

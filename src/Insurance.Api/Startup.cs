@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Insurance.Api.Infrastructure;
 using Insurance.Api.Application.Commands;
 using Insurance.Api.Application.Interfaces;
+using Insurance.Infrastructure.API_Clients;
 
 namespace Insurance.Api
 {
