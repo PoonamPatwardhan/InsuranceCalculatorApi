@@ -43,16 +43,9 @@ namespace Insurance.Infrastructure.API_Clients
 
         private string GetProductById(int productId)
         {
-            try
-            {
-                var productJson = client.GetAsync(string.Format("/products/{0:G}", productId)).Result.Content
-                    .ReadAsStringAsync().Result;
-                return productJson;
-            }
-            catch (HttpRequestException httpException)
-            {
-                throw new Exception($"Could not get product by ID, due to exception : {httpException.Message}",httpException);
-            }
+            var productJson = client.GetAsync(string.Format("/products/{0:G}", productId)).Result.Content
+                .ReadAsStringAsync().Result;
+            return productJson;
         }
 
         private string GetProductTypes()
