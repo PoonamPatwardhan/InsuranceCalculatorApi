@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Insurance.Api.Controllers
 {
     [ApiController]
-    public partial class InsuranceController : Controller
+    public class InsuranceController : Controller
     {
         private ILogger<InsuranceController> logger;
         private readonly IInsuranceService insuranceService;

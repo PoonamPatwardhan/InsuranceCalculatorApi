@@ -1,7 +1,6 @@
-using Insurance.Api.Domain;
-using Insurance.Api.Application.Mappers;
 using Insurance.Api.Application.DTO;
-using System.Collections.Generic;
+using Insurance.Api.Application.Mappers;
+using Insurance.Api.Domain;
 
 namespace Insurance.Api.Application.Commands
 {
