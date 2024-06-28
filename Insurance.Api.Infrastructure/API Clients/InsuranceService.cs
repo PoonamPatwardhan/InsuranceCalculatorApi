@@ -1,28 +1,19 @@
-using System;
-using System.Net.Http;
-using Insurance.Api.Application.Interfaces;
-using Insurance.Api.Application.DTO;
-using Newtonsoft.Json;
 using Insurance.Api.Application.Commands;
+using Insurance.Api.Application.DTO;
+using Insurance.Api.Application.Interfaces;
+using Newtonsoft.Json;
 
 namespace Insurance.Api.Infrastructure
 {
-    public class InsuranceService : IInsuranceService
+    public class InsuranceService(ICalculateInsuranceCommand commandToCalculateInsurance) : IInsuranceService
     {
-        private HttpClient client;
+        private HttpClient client = new() { BaseAddress = new Uri(productApi) };
         private const string productApi = "http://localhost:5002";
-        private readonly ICalculateInsuranceCommand commandToCalculateInsurance;
 
-        public InsuranceService(ICalculateInsuranceCommand commandToCalculateInsurance)
-        {
-            client = new HttpClient { BaseAddress = new Uri(productApi) };
-            this.commandToCalculateInsurance = commandToCalculateInsurance;
-        }
-
-        public ProductInsuranceReadDto? CalculateInsuranceForProduct(int productId)
+        public ProductInsuranceReadDto CalculateInsuranceForProduct(int productId)
         {
             var insuredProductDto = GetInsuranceDtoByProductIdAndType(productId);
-            return insuredProductDto == null ? null : commandToCalculateInsurance.Execute(insuredProductDto);
+            return (insuredProductDto == null ? null : commandToCalculateInsurance.Execute(insuredProductDto))!;
         }
 
         private ProductInsuranceCreateDto? GetInsuranceDtoByProductIdAndType(int productId)
@@ -36,16 +27,15 @@ namespace Insurance.Api.Infrastructure
             var productTypes = JsonConvert.DeserializeObject<dynamic>(jsonProductTypes);
 
             var productToInsureDto = new ProductInsuranceCreateDto();
-            bool productToInsureFound = false;
+            var productToInsureFound = false;
 
             foreach (var productType in productTypes)
             {
-                if (productType.id == product.productTypeId && productType.canBeInsured == true)
-                {
-                    productToInsureDto.ProductTypeName = productType.name;
-                    productToInsureDto.ProductTypeHasInsurance = true;
-                    productToInsureFound = true;
-                }
+                if (productType.id != product.productTypeId || productType.canBeInsured != true) 
+                    continue;
+                productToInsureDto.ProductTypeName = productType.name;
+                productToInsureDto.ProductTypeHasInsurance = true;
+                productToInsureFound = true;
             }
 
             if (!productToInsureFound)
@@ -56,16 +46,9 @@ namespace Insurance.Api.Infrastructure
 
         private string GetProductById(int productId)
         {
-            try
-            {
-                var productJson = client.GetAsync(string.Format("/products/{0:G}", productId)).Result.Content
-                    .ReadAsStringAsync().Result;
-                return productJson;
-            }
-            catch (HttpRequestException httpException)
-            {
-                throw httpException;
-            }
+            var productJson = client.GetAsync(string.Format("/products/{0:G}", productId)).Result.Content
+                .ReadAsStringAsync().Result;
+            return productJson;
         }
 
         private string GetProductTypes()
@@ -79,8 +62,6 @@ namespace Insurance.Api.Infrastructure
             {
                 throw httpException;
             }
-
-            return null;
         }
     }
 }
